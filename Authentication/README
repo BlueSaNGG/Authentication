@@ -1,0 +1,51 @@
+npm init -y
+npm express ejs body-parser
+
+
+nodemon app.js
+
+run:
+    npm install
+    # to install all the dependences from the package.json
+
+
+
+#Level 1:
+    creating account : Email & Password
+    Storing the password in the database
+    Stored at server level
+
+    run:
+        npm i mongoose
+        nodemon app.js
+
+    help:
+        start/ shutdown mongod https://www.mongodb.com/docs/manual/tutorial/manage-mongodb-processes/
+
+
+
+#Level 2:
+    add database encryption
+    hacking the database can only get the encryption password
+    but hacking the website may find the encryption key and be able to decrypt it
+
+    library:
+        mongoose-encryption
+
+    encryption -> authentication
+
+    run: 
+        npm i mongoose-encryption
+
+    description:
+        During save, documents are encrypted and then signed. 
+        During find, documents are authenticated and then decrypted.
+
+#Level 2.5:
+    add environment variables
+
+    package:
+        dotenv
+    
+    run:
+        npm i dotenv

@@ -96,4 +96,10 @@ run:
     run:
         npm i bcrypt
 
+    Notice:
+        how the compare function knows the round?
+        the hash value is "$2b$10$RfLtQDXojBpPU3fZ/VsYReJ6Mc4vxgyxrBryxYvhxoZBREVXKKlIi"
+        $2b$10 means 10 rounds 
+        The salt is RfLtQDXojBpPU3fZ
+        The hash is VsYReJ6Mc4vxgyxrBryxYvhxoZBREVXKKlIi
 

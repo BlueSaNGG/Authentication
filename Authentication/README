@@ -2,6 +2,7 @@ npm init -y
 npm express ejs body-parser
 
 
+
 nodemon app.js
 
 run:
@@ -41,11 +42,58 @@ run:
         During save, documents are encrypted and then signed. 
         During find, documents are authenticated and then decrypted.
 
+
+
 #Level 2.5:
     add environment variables
 
     package:
         dotenv
-    
+
     run:
         npm i dotenv
+
+    notice:
+        heroku using the same way as dotenv to set the config file
+
+
+
+#Level 3:
+    hashing -> takes away the encryption key 
+    hash is designed to be caculated very quickly forwards, but almost impossible to go backwards
+
+    package:
+        MD5
+
+    run:
+        npm i md5
+
+    notice:
+        the hash result of an input will always be the same
+
+    problem:
+        hack: make a hash of words/sentences to match the hash database to get the origin password
+
+
+
+#Level 4:
+    #################################
+    Hasing & Salting
+        salting: generate a random set of characters that combined with the password before hashing
+        database only stores the Salt and Hash value
+
+    #################################
+    Change Hash Algorithm:
+        bcrypt hash algorithm -> run hash slower -> takes more time to hack
+
+    #################################
+    Salt Round:
+        define how many round to salt the password
+        plain text + salt -> hash + new salt -> hash + new salt -> final hash
+
+        needs to store the salting round number
+
+    run:
+        npm i bcrypt
+
+

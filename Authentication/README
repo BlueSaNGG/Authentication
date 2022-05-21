@@ -103,3 +103,22 @@ run:
         The salt is RfLtQDXojBpPU3fZ
         The hash is VsYReJ6Mc4vxgyxrBryxYvhxoZBREVXKKlIi
 
+
+
+#Level 5:
+    Cookie and Session
+    cookie is sent with get request to help the server identify the request source
+    cookie is stored after post request, the server send back some information was stored as cookie
+
+    Package:
+        passport
+        passport-local
+        passport-local-mongoose
+        express-session NOT express-sessions
+
+    run:
+        npm i passport passport-local passport-local-mongoose express-session
+
+    notice:
+        serialise: store the message into a cookie
+        deserialise: crumble the cookie and discover the message inside

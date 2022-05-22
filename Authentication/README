@@ -122,3 +122,33 @@ run:
     notice:
         serialise: store the message into a cookie
         deserialise: crumble the cookie and discover the message inside
+
+
+
+#Level 6:
+    Third party OAuth -> Open Authorisation
+    delegate the password duty to third party companies
+
+    Special:
+        1. Granular Access Levels
+        2. Read/Read+Write Access
+        3. Revoke Access
+
+    Step:
+        1. Set up App on their website
+        2. Redirect to Authenticate
+        3. User Logs In
+        4. User Grants Permissions to App
+        5. Our App Reveive Authorisation code from third party company
+        6. Exchange AuthCode for Access Token -> valid for a lot longer than the authentication token
+            Use to access pieces of information that are stored on that user's account on the third party website
+
+    Implementation:
+        login with google
+
+    Library:
+        passport google : https://www.passportjs.org/packages/passport-google-oauth20/
+    
+    Run:
+        npm install passport-google-oauth20
+    

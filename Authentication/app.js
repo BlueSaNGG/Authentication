@@ -8,6 +8,7 @@ const session = require('express-session');
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const GitHubStrategy = require("passport-github2").Strategy;
 const findOrCreate = require("mongoose-findorcreate");
 
 const app = express();
@@ -39,7 +40,9 @@ const userSchema = new mongoose.Schema (
     {
         email: String,
         password: String,
-        googleId: String
+        googleId: String,
+        githubId: String,
+        username: String
     }, 
     { collection: "userinfo"}
 );
@@ -47,18 +50,13 @@ const userSchema = new mongoose.Schema (
 /////////////////////////////////////////////////
 // hash & salt password -> save user into mongodb database
 userSchema.plugin(passportLocalMongoose);
-// plugin google
 userSchema.plugin(findOrCreate);
 /////////////////////////////////////////////////
 
 // create model
 const User = new mongoose.model("User", userSchema);
-
-
 passport.use(User.createStrategy());
-///////////////////////GHoogle authentication//////////////////////////
 // CHANGE: USE "createStrategy" INSTEAD OF "authenticate"
-
 passport.serializeUser(function (user, done) {
     done(null, user.id);
 });
@@ -68,13 +66,13 @@ passport.deserializeUser(function (id, done) {
     });
 });
 
+///////////////////////Google authentication//////////////////////////
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
     callbackURL: "http://localhost:3000/auth/google/secrets"
   },
   function(accessToken, refreshToken, profile, cb) {
-      console.log(profile);
     User.findOrCreate({ username: profile._json.email, googleId: profile.id }, function (err, user) {
       return cb(err, user);
     });
@@ -82,6 +80,19 @@ passport.use(new GoogleStrategy({
 ));
 /////////////////////////////////////////////////
 
+//////////////////GITHUB Authentication/////////////////////
+passport.use(new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENTID,
+    clientSecret: process.env.GITHUB_SECRET,
+    callbackURL: "http://localhost:3000/auth/github/secrets"
+  },
+  function(accessToken, refreshToken, profile, done) {
+    User.findOrCreate({ username: profile.username,githubId: profile.id }, function (err, user) {
+      return done(err, user);
+    });
+  }
+));
+/////////////////////////////////////////////////
 
 app.get("/", function (req, res) {
     res.render("home");
@@ -125,6 +136,19 @@ app.get('/auth/google/secrets',
     res.redirect('/secrets');
   });
 ///////////////////////////////////
+
+
+/////////////////// github authentication
+app.get('/auth/github',
+  passport.authenticate('github', { scope: [ 'user:email' ] }));
+
+app.get('/auth/github/secrets', 
+  passport.authenticate('github', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/secrets');
+  });
+/////////////////////////////////
 
 
 // catch the post from the register route

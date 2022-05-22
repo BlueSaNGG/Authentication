@@ -152,3 +152,5 @@ run:
     Run:
         npm install passport-google-oauth20
     
+        github Oauth: https://www.passportjs.org/packages/passport-github2/
+        npm install passport-github2

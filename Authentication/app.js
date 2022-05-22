@@ -20,7 +20,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 
-/////////////////////////////////////////////////
+///////////////Session configure//////////////////////////////////
 app.use(session({
     secret: "Our little secret.",
     resave: false,
@@ -42,7 +42,8 @@ const userSchema = new mongoose.Schema (
         password: String,
         googleId: String,
         githubId: String,
-        username: String
+        username: String,
+        secret: Array
     }, 
     { collection: "userinfo"}
 );
@@ -94,29 +95,90 @@ passport.use(new GitHubStrategy({
 ));
 /////////////////////////////////////////////////
 
+// HOME PAGE
 app.get("/", function (req, res) {
     res.render("home");
 });
 
+// LOGIN PAGE
 app.get("/login", function (req, res) {
     res.render("login");
 });
 
+        // catche the post from the login route
+app.post('/login', 
+  passport.authenticate('local', { failureRedirect: '/login' }),
+  function(req, res) {
+    res.redirect('/secrets');
+    });
+
+// REGISTER PAGE
 app.get("/register", function (req, res) {
     res.render("register");
 });
 
-// enable directly visit secret url when user logged in
-app.get("/secrets", function (req, res) {
-    // check if the user is authenticated
-    if (req.isAuthenticated()) {
-        res.render("secrets");
-    } else {
-        res.redirect("/login");
-    }
+        // catch the post from the register route
+app.post("/register", function (req, res) {
+
+    // from the passport-local-mongoose package
+    User.register({username: req.body.username}, req.body.password, function(err, user) {
+        if (err) {
+            console.log(err);
+            res.redirect("/register");
+        } else {
+            passport.authenticate("local") (req, res, function () {
+                res.redirect("/secrets");
+            });
+        }
+    }); 
 
 });
 
+// SECRET PAGE
+// enable directly visit secret url when user logged in
+app.get("/secrets", function (req, res) {
+    User.find({"secret":{$ne:null}}, function (err, foundUsers) {
+        if (err) {
+            console.log(err);
+        } else {
+            if (foundUsers) {
+                console.log(foundUsers);
+                res.render("secrets", {usersWithSecrets: foundUsers});
+            }
+        }
+    });
+});
+
+// SUBMIT PAGE
+app.get("/submit", function (req, res) {
+     // check if the user is authenticated
+     if (req.isAuthenticated()) {
+        res.render("submit");
+    } else {
+        res.redirect("/login");
+    }
+});
+
+app.post("/submit", function (req, res) {
+    const submittedSecret = req.body.secret;
+    // the passport save the user info in the req.user
+    console.log(req.user.id);
+
+    User.findById(req.user.id, function(err, foundUser) {
+        if (err) {
+            console.log(err);
+        } else {
+            if (foundUser) {
+                foundUser.secret.push(submittedSecret);
+                foundUser.save(function() {
+                    res.redirect("/secrets");
+                });
+            }
+        }
+    });
+});
+
+// LOGOUT
 app.get("/logout", function (req, res) {
     req.logout(function () { console.log('Done logging out.'); });
     res.redirect("/");
@@ -149,32 +211,6 @@ app.get('/auth/github/secrets',
     res.redirect('/secrets');
   });
 /////////////////////////////////
-
-
-// catch the post from the register route
-app.post("/register", function (req, res) {
-
-    // from the passport-local-mongoose package
-    User.register({username: req.body.username}, req.body.password, function(err, user) {
-        if (err) {
-            console.log(err);
-            res.redirect("/register");
-        } else {
-            passport.authenticate("local") (req, res, function () {
-                res.redirect("/secrets");
-            });
-        }
-    }); 
-
-});
-
-// catche the post from the login route
-app.post('/login', 
-  passport.authenticate('local', { failureRedirect: '/login' }),
-  function(req, res) {
-    res.redirect('/secrets');
-    });
-
 
 
 app.listen(3000, function() {
